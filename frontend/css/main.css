@@ -42,3 +42,15 @@ input:focus + .help {
 div.submit {
     margin-left:170px;
 }
+
+
+#map {
+  position: relative;
+  width: auto;
+  height: 650px;
+}
+
+#mesaje {
+  position: absolute;
+  color: white;
+}

@@ -92,6 +92,12 @@ app.get('/', function (req, res) {
 var apiRoutesUsers = require('./app/routes/users');
 app.use('/api', apiRoutesUsers);
 
+/* RUTA USER */
+// TODO: de făcut ruta user
+
+/* RUTA CARE ADUCE DATELE */
+require('./app/routes/apiroutes')(app);
+
 /**
  * CONECTARI SOCKETS
  */
@@ -152,9 +158,6 @@ io.on('connect', function(socket){
     // execută interogarea la un moment viitor când este nevoie
     query.exec(function(err, person) {
               if (err) throw err;
-              // console.log(person);
-              console.log('person.password este', person.password);
-              console.log('data.password este', data.password);
 
               // CAZUL DE PE LANDING
               if(person.password === data.password){

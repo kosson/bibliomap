@@ -4,10 +4,95 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    {{!-- ÎNCĂRCARE CSS-uri --}}
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="libs/leaflet/dist/leaflet.css">
+    <link rel="stylesheet" href="libs/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="libs/bootstrap/dist/css/bootstrap-theme.min.css">
+
+    {{!-- BINDINGURI BIBLIOTECI DE COD --}}
     <script src="/socket.io/socket.io.js" charset="utf-8"></script>
+    <script src="libs/jquery/dist/jquery.min.js" charset="utf-8"></script>
+    <script src="libs/bootstrap/dist/js/bootstrap.min.js" charset="utf-8"></script>
+    <script src="libs/leaflet/dist/leaflet.js" charset="utf-8"></script>
+
     <title>{{> page/title}}</title>
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.2/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
   </head>
   <body>
+    <div class="">
+      <nav class="navbar navbar-default navbar-inverse">
+        <div class="container-fluid">
+
+          <!-- Brand and toggle get grouped for better mobile display -->
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+              <span class="sr-only">Activează navigarea</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+            <div class="navbar-header">
+              <a class="navbar-brand" href="#">
+                <img alt="Biblioteci românești" src="images/logo.jpg" height="25px">
+              </a>
+            </div>
+            {{!-- <p class="navbar-text">Biblioteci românești</p> --}}
+          </div>
+
+          <!-- Collect the nav links, forms, and other content for toggling -->
+          <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+              <li><a href="/">Home</a></li>
+              <li><a href="/api">Login</a></li>
+              <li><a href="/api/signin">Signin</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="#">Despre</a></li>
+            </ul>
+          </div><!-- /.navbar-collapse -->
+        </div>
+      </nav>
+    </div>
     {{{body}}}
+    <nav class="navbar navbar-default navbar-inverse">
+      <div class="container-fluid">
+
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+            <span class="sr-only">Activează navigarea</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <div class="navbar-header">
+            <a class="navbar-brand" href="#">
+              <img alt="" src="" height="25px">
+            </a>
+          </div>
+          {{!-- <p class="navbar-text">Biblioteci românești</p> --}}
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            {{!-- <li><a href="/">Home</a></li> --}}
+          </ul>
+
+          {{!-- TODO: Segregare date. Implicit, vor fi încărcate toate reperele, care se vor face clustere --}}
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-sm">Alege după UAT</button>
+
+          <ul class="nav navbar-nav navbar-right">
+            {{!-- <li><a href="#">Despre</a></li> --}}
+          </ul>
+        </div><!-- /.navbar-collapse -->
+      </div>
+    </nav>
+  </div>
   </body>
 </html>

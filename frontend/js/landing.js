@@ -12,7 +12,7 @@ function verifyExisting(){
     // funcție de afișare a mesajelor
     var afisMesaj = function afisMesaj(){
       $('#mesaje').empty();                            // curăță mesajul anterior
-      $('#mesaje').append($('<H1>').text(me.mesaj));  // introdu mesajul nou
+      $('#mesaje').append($('<span class="alert alert-success">').text(me.mesaj));  // introdu mesajul nou
     };
 
     // dacă a fost trimis de la server obi care are user
@@ -20,7 +20,7 @@ function verifyExisting(){
       afisMesaj();                                     // afișează întâmpinare
       setTimeout(function(){
         $('#mesaje').empty(); // sterge mesajul
-      }, 5000);
+      }, 3000);
     };
   });
 

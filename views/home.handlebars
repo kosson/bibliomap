@@ -1,23 +1,131 @@
-<div id="mesaje"></div>
+<link rel="stylesheet" href="../libs/leaflet.markercluster/dist/MarkerCluster.Default.css" media="screen" title="no title" charset="utf-8">
+<link rel="stylesheet" href="../libs/leaflet.markercluster/dist/MarkerCluster.css" media="screen" title="no title" charset="utf-8">
+<link rel="stylesheet" href="../libs/leaflet-groupedlayercontrol/dist/leaflet.groupedlayercontrol.min.css" media="screen" title="no title" charset="utf-8">
 
-<button type="button" name="login" onclick="window.location = '/api';">
-  Login
-</button>
-<button type="button" name="login" onclick="window.location = '/api/signin';">
-  Signin
-</button>
+<link rel="stylesheet" href="../libs/leaflet-search/dist/leaflet-search.min.css" media="screen" title="no title" charset="utf-8">
+<link rel="stylesheet" href="../libs/leaflet-search/dist/leaflet-search.mobile.min.css" media="screen" title="no title" charset="utf-8">
 
-<h2>Boilerplate pentru logare cu socketio</h2>
-<p>
-  Această pagină este una care să fie servită de Express ca pagină statică.
-</p>
-<p>
-  Resursele suplimentare necesare vor fi servite cu Bower
-</p>
+<link rel="stylesheet" href="../libs/Leaflet.awesome-markers/dist/leaflet.awesome-markers.css" media="screen" title="no title" charset="utf-8">
 
-<script src="../../libs/jquery/dist/jquery.min.js" charset="utf-8"></script>
+<script src="../libs/leaflet-ajax/dist/leaflet.ajax.min.js" charset="utf-8"></script>
+<script src="../libs/leaflet.markercluster/dist/leaflet.markercluster.js" charset="utf-8"></script>
+<script src="../libs/leaflet-groupedlayercontrol/dist/leaflet.groupedlayercontrol.min.js" charset="utf-8"></script>
+<script src="../libs/leaflet-search/dist/leaflet-search.min.js" charset="utf-8"></script>
+<script src="../libs/Leaflet.awesome-markers/dist/leaflet.awesome-markers.min.js" charset="utf-8"></script>
+
+<section>
+  {{!-- ZONA DE AVERTISMENTE --}}
+  <p id="mesaje"></p>
+</section>
+
+<div class="container">
+  <section>
+    <div class="">
+      <p>
+        <strong>Bibliocartograful</strong> este o aplicație destinată gestionării sistemului național de biblioteci sub aspectul unui punct comun de colectare a informațiilor relevante.
+      </p>
+      <p>
+        Această aplicație s-a născut din necesitatea de a avea o vedere unitară și un punct unic de informare.
+      </p>
+    </div>
+  </section>
+
+  {{!-- TODO: Segregare date. Implicit, vor fi încărcate toate reperele, care se vor face clustere --}}
+  {{!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-sm">Alege după UAT</button> --}}
+
+  <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel">
+    <div class="modal-dialog modal-sm" role="document">
+      <div class="modal-content">
+        {{!-- CONȚINUT MODAL --}}
+
+        <!-- Split button -->
+        <div class="btn-group">
+          <button type="button" class="btn btn-danger">Regiuni de dezvoltare (NUTS II)</button>
+          <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="caret"></span>
+            <span class="sr-only">Acționează Dropdown</span>
+          </button>
+          <ul class="dropdown-menu">
+            <li><a href="#">Regiunea Nord-Est</a></li>
+            <li><a href="#">Regiunea Sud-Est</a></li>
+            <li><a href="#">Regiunea Sud-Muntenia</a></li>
+            <li><a href="#">Regiunea Sud-Vest Oltenia</a></li>
+            <li><a href="#">Regiunea Vest</a></li>
+            <li><a href="#">Regiunea Nord-Vest</a></li>
+            <li><a href="#">Regiunea Centru</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">București - Ilfov</a></li>
+          </ul>
+        </div>
+
+        <!-- Split button -->
+        <div class="btn-group">
+          <button type="button" class="btn btn-danger">Județe (NUTS III)</button>
+          <button type="button" class="btn btn-danger dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <span class="caret"></span>
+            <span class="sr-only">Acționează Dropdown</span>
+          </button>
+          <ul class="dropdown-menu">
+            <li><a href="#">Alba</a></li>
+            <li><a href="#">Arad</a></li>
+            <li><a href="#">Argeș</a></li>
+            <li><a href="#">Bacău</a></li>
+            <li><a href="#">Bihor</a></li>
+            <li><a href="#">Bistrița-Năsăud</a></li>
+            <li><a href="#">Botoșani</a></li>
+            <li><a href="#">Brașov</a></li>
+            <li><a href="#">Brăila</a></li>
+            <li><a href="#">Buzău</a></li>
+            <li><a href="#">Caraș-Severin</a></li>
+            <li><a href="#">Călărași</a></li>
+            <li><a href="#">Cluj</a></li>
+            <li><a href="#">Constanța</a></li>
+            <li><a href="#">Covasna</a></li>
+            <li><a href="#">Dâmbovița</a></li>
+            <li><a href="#">Dolj</a></li>
+            <li><a href="#">Galați</a></li>
+            <li><a href="#">Giurgiu</a></li>
+            <li><a href="#">Gorj</a></li>
+            <li><a href="#">Harghita</a></li>
+            <li><a href="#">Hunedoara</a></li>
+            <li><a href="#">Ialomița</a></li>
+            <li><a href="#">Iași</a></li>
+            <li><a href="#">Ilfov</a></li>
+            <li><a href="#">Maramureș</a></li>
+            <li><a href="#">Mehedinți</a></li>
+            <li><a href="#">Neamț</a></li>
+            <li><a href="#">Olt</a></li>
+            <li><a href="#">Prahova</a></li>
+            <li><a href="#">Satu Mare</a></li>
+            <li><a href="#">Sălaj</a></li>
+            <li><a href="#">Sibiu</a></li>
+            <li><a href="#">Teleorman</a></li>
+            <li><a href="#">Timiș</a></li>
+            <li><a href="#">Tulcea</a></li>
+            <li><a href="#">Vaslui</a></li>
+            <li><a href="#">Vâlcea</a></li>
+            <li><a href="#">Vrancea</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">București</a></li>
+          </ul>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  {{!-- CARTOGRAFUL --}}
+  <section id="cartographer">
+    <div class="" id="map"></div>
+  </section>
+</div>
+
+{{!-- BINDINGURI FRONTEND - PUBLIC --}}
 <script src="../js/com.js" charset="utf-8"></script>
 <script src="../js/landing.js" charset="utf-8"></script>
+<script src="../js/mapMain.js" charset="utf-8"></script>
+
+{{!-- EXECUȚIE LOCALĂ --}}
 <script type="text/javascript">
   verifyExisting();
 </script>

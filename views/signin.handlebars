@@ -1,59 +1,91 @@
 <link rel="stylesheet" href="../../css/main.css" media="screen" title="no title" charset="utf-8">
 <link rel="stylesheet" href="../../libs/jquery-form-validator/form-validator/theme-default.min.css" media="screen" title="no title" charset="utf-8">
+<link rel="stylesheet" href="../../libs/bootstrap/dist/css/bootstrap.min.css">
+<link rel="stylesheet" href="../../libs/bootstrap/dist/css/bootstrap-theme.min.css">
+<script src="../../libs/bootstrap/dist/js/bootstrap.min.js" charset="utf-8"></script>
 
-<form action="" id="signinForm" onsubmit="return createUser()">
-  <div class="form-group">
-    <fieldset>
-        <legend>Creare cont</legend>
-        <div>
-          <label for="name">Nume:</label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value=""
-            aria-describedby="name-format"
-            required
-            aria-required=”true”
-            data-validation="length alphanumeric"
-            data-validation-length="min5"
-            data-validation-error-msg-required="Trebuie să pui un nume"
-            data-validation-error-msg-alphanumeric="Doar alfanumerice"
-  	        data-validation-error-msg="Să fie măcar de 5 caractere">
-          <span id="name-format" class="help">Un nume scurt</span>
-        </div>
-        <div>
-            <label for="email">Email</label>
-            <input type="text"
-                   id="email"
-                   name="email"
-                   value=""
-                   required aria-required="true"
-                   data-validation-error-msg="Nu-i un mail valid">
-            <span id="email-format" class="help">Introdu un email valid</span>
-        </div>
-        <div>
-            <label for="password">Password</label>
-            <input type="password"
-              id="password"
-              name="pass_confirmation"
+<div class="container-fluid">
+  <form action="" id="signinForm" onsubmit="return createUser()">
+    <div class="form-group">
+      <fieldset>
+          <legend>Creare cont</legend>
+          <div>
+            <label for="name">Nume:</label>
+            <input
+              type="text"
+              id="name"
+              name="name"
+              value=""
+              aria-describedby="name-format"
+              required
+              aria-required=”true”
               data-validation="length"
-              data-validation-length="min8">
-        </div>
-        <div>
-            <label for="parolacheck">Verifică parola</label>
-            <input type="password"
-              id="parolacheck"
-              name="pass"
-              data-validation="confirmation">
-        </div>
-        <div class="submit">
-            <input type="submit" name="formSubmitSend" value="Fă cont">
-            <input type="reset" value="Resetează formularul">
-        </div>
-    </fieldset>
-  </div>
-</form>
+              data-validation-length="min3"
+              data-validation-error-msg-required="Trebuie să pui un nume"
+    	        data-validation-error-msg="Să fie măcar de 5 caractere">
+            <span id="name-format" class="help">Un nume scurt</span>
+          </div>
+          <div>
+              <label for="email">Email</label>
+              <input type="text"
+                     id="email"
+                     name="email"
+                     value=""
+                     required aria-required="true"
+                     data-validation-error-msg="Nu-i un mail valid">
+              <span id="email-format" class="help">Introdu un email valid</span>
+          </div>
+          <div>
+            <label for="org">Organizație:</label>
+            <input
+              type="text"
+              id="org"
+              name="org"
+              value=""
+              aria-describedby="name-format"
+              data-validation-length="min2"
+              data-validation-error-msg-required="Introdu numele instituției"
+              data-validation-error-msg="Să fie măcar de 2 caractere">
+            <span id="name-format" class="help">Numele instituției tale</span>
+          </div>
+          <div>
+            <label for="role">Rol:</label>
+            <input
+              type="text"
+              id="role"
+              name="role"
+              value=""
+              aria-describedby="name-format"
+              data-validation-length="min2"
+              data-validation-error-msg-required="Care este funcția ta?"
+              data-validation-error-msg="Să fie măcar de 2 caractere">
+            <span id="name-format" class="help">Denumirea funcției tale</span>
+          </div>
+          <div>
+              <label for="password">Parolă</label>
+              <input type="password"
+                id="password"
+                name="pass_confirmation"
+                data-validation="length"
+                data-validation-length="min8">
+          </div>
+          <div>
+              <label for="parolacheck">Verifică parola</label>
+              <input type="password"
+                id="parolacheck"
+                name="pass"
+                data-validation="confirmation">
+          </div>
+          <div class="submit">
+              <input type="submit" name="formSubmitSend" value="Fă cont">
+              <input type="reset" value="Șterge tot">
+          </div>
+      </fieldset>
+    </div>
+  </form>
+</div>
+
+
 <div id="mesaje">
   {{!-- <span id="mesaj"></span> --}}
 </div>
