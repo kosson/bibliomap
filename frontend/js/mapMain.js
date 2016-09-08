@@ -1,7 +1,11 @@
 // CREARE LAYERE
 var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
-var osm = new L.TileLayer(osmUrl, {minZoom: 6, attribution: osmAttrib});
+var osm = new L.TileLayer(osmUrl, {
+  minZoom: 6,
+  attribution: osmAttrib,
+  detectRetina: true
+});
 
 var map = L.map('map', {
     center: [45.924, 25.466],
@@ -14,9 +18,14 @@ var map = L.map('map', {
 var layers = new L.LayerGroup().addTo(map);
 
 addROcounties();
-addROlibs('is_county'); //TODO: adu doar centralele, nu și filialele.
+addROlibs('is_county');
+addROlibs('is_municipal', 5);
+addROlibs('is_village', 5);
+addROlibs('is_branch', 5);
+addROlibs('is_university', 5);
+addROlibs('is_city', 5);
 
-// construiește un layer cu toate județele ca și coropleth-uri
+// COROPHETH-urile județelor
 function addROcounties (option){
   if (!option){
     // TODO: adu toate judetele si feature-urile pentru județene
@@ -85,7 +94,10 @@ function addROcounties (option){
   };
 };
 
-function addROlibs(option){
+// MARKERI BIBLIOTECI
+function addROlibs(option, noCounty){
+
+  // BIBLIOTECI JUDEȚENE FĂRĂ FILIALE
   if(option === 'is_county'){
     $.getJSON("http://localhost:3000/api/geodata/judetene", function(data){
 
@@ -136,12 +148,14 @@ function addROlibs(option){
       //   // shadowAnchor: [4, 62],  // the same for the shadow
       //   // popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
       // });
+
+      // IConuri construite cu pluginul Leaflet.awesome-markers
       var countyLibIcon = L.AwesomeMarkers.icon({
         icon: 'star',
         markerColor: 'red'
       });
-
-      var addROcountyLibs = L.geoJson(data, {
+      // construiește layerul bibliotecilor județene
+      var addROcountyLibsCentral = L.geoJson(data, {
         style: style,
         onEachFeature: onEachFeature,
         filter: function(feature, layer) {
@@ -151,11 +165,360 @@ function addROlibs(option){
   				return L.marker(latlng, {icon: countyLibIcon});
   			},
       });
-
-      layers.addLayer(addROcountyLibs);
+      // adaugă layerul bibliotecilor județene la grupul layerelor
+      layers.addLayer(addROcountyLibsCentral);
     });
-  }
-}
+  };
+
+  // BIBLIOTECILE MUNICIPALE
+  if(option === 'is_municipal'){
+    $.getJSON("http://localhost:3000/api/geodata/features/nuts3ro/" + noCounty, function(data){
+      var style ={
+        // fillColor: 'orange'
+      };
+
+      function onEachFeature(feature, layer) {
+
+        var webpage = '', catalog = '';
+        // verifică dacă există valoare pentru pagină de web proprie
+        if(feature.properties.services.webpage_url) {
+          webpage = '<a href=\"http://'
+                    + feature.properties.services.webpage_url
+                    + '\">'
+                    + feature.properties.services.webpage_url
+                    + '</a>'
+        } else {
+          webpage = 'Nu are pagină pe domeniul propriu.'
+        };
+        // verifică dacă există valoare pentru catalog
+        if(feature.properties.services.catalog.url) {
+          catalog = '<a href=\"http://'
+                + feature.properties.services.catalog.url
+                + '\">'
+                + feature.properties.services.catalog.url
+                + '</a>'
+        } else {
+          catalog = 'Nu are catalog propriu.'
+        };
+
+        // configurarea conținutului care apare în popup
+        var popupText = feature.properties.name[0].official_name + ', ' + feature.properties.address[0].loc +
+                        '<br>Adresă: ' + feature.properties.address[0].loc +
+                        '<br>Site: ' + webpage +
+                        '<br>Catalog: ' + catalog;
+
+        layer.bindPopup(popupText);
+      };
+
+      // IConuri construite cu pluginul Leaflet.awesome-markers
+      var municipalLibsIcon = L.AwesomeMarkers.icon({
+        icon: 'book',
+        markerColor: 'blue'
+      });
+
+      var addROmunicipalLibs = L.geoJson(data, {
+        style: style,
+        onEachFeature: onEachFeature,
+        filter: function(feature, layer) {
+            // return !feature.properties.qualifiers.is_village && !feature.properties.qualifiers.is_county;
+            return !feature.properties.qualifiers.is_village &&
+            !feature.properties.qualifiers.is_county &&
+            !feature.properties.qualifiers.is_city   &&
+            !feature.properties.qualifiers.is_branch &&
+            !feature.properties.qualifiers.is_national &&
+            !feature.properties.qualifiers.is_museum &&
+            !feature.properties.qualifiers.is_part_of &&
+            !feature.properties.qualifiers.is_school &&
+            !feature.properties.qualifiers.is_university;
+        },
+        pointToLayer: function (feature, latlng) {
+          return L.marker(latlng, {icon: municipalLibsIcon});
+        },
+      });
+
+      layers.addLayer(addROmunicipalLibs);
+    });
+  };
+
+  // BIBLIOTECI ORĂȘENEȘTI
+  if(option === 'is_city'){
+    $.getJSON("http://localhost:3000/api/geodata/features/nuts3ro/" + noCounty, function(data){
+      var style ={
+        // fillColor: 'orange'
+      };
+
+      function onEachFeature(feature, layer) {
+
+        var webpage = '', catalog = '';
+        // verifică dacă există valoare pentru pagină de web proprie
+        if(feature.properties.services.webpage_url) {
+          webpage = '<a href=\"http://'
+                    + feature.properties.services.webpage_url
+                    + '\">'
+                    + feature.properties.services.webpage_url
+                    + '</a>'
+        } else {
+          webpage = 'Nu are pagină pe domeniul propriu.'
+        };
+        // verifică dacă există valoare pentru catalog
+        if(feature.properties.services.catalog.url) {
+          catalog = '<a href=\"http://'
+                + feature.properties.services.catalog.url
+                + '\">'
+                + feature.properties.services.catalog.url
+                + '</a>'
+        } else {
+          catalog = 'Nu are catalog propriu.'
+        };
+
+        // configurarea conținutului care apare în popup
+        var popupText = feature.properties.name[0].official_name + ', ' + feature.properties.address[0].loc +
+                        '<br>Adresă: ' + feature.properties.address[0].loc +
+                        '<br>Site: ' + webpage +
+                        '<br>Catalog: ' + catalog;
+
+        layer.bindPopup(popupText);
+      };
+
+      // IConuri construite cu pluginul Leaflet.awesome-markers
+      var cityROLibsIcon = L.AwesomeMarkers.icon({
+        icon: 'cog',
+        markerColor: 'red'
+      });
+
+      var addROcityLibs = L.geoJson(data, {
+        style: style,
+        onEachFeature: onEachFeature,
+        filter: function(feature, layer) {
+            return !feature.properties.qualifiers.is_village &&
+            !feature.properties.qualifiers.is_municipal &&
+            !feature.properties.qualifiers.is_city   &&
+            !feature.properties.qualifiers.is_branch &&
+            !feature.properties.qualifiers.is_national &&
+            !feature.properties.qualifiers.is_museum &&
+            !feature.properties.qualifiers.is_part_of &&
+            !feature.properties.qualifiers.is_school &&
+            !feature.properties.qualifiers.is_university;
+        },
+        pointToLayer: function (feature, latlng) {
+          return L.marker(latlng, {icon: cityROLibsIcon});
+        },
+      });
+
+      layers.addLayer(addROcityLibs);
+    });
+  };
+
+  // BIBLIOTECILE UNIVERSITARE
+  if(option === 'is_university'){
+    $.getJSON("http://localhost:3000/api/geodata/features/nuts3ro/" + noCounty, function(data){
+      var style ={
+        // fillColor: 'orange'
+      };
+
+      function onEachFeature(feature, layer) {
+
+        var webpage = '', catalog = '';
+        // verifică dacă există valoare pentru pagină de web proprie
+        if(feature.properties.services.webpage_url) {
+          webpage = '<a href=\"http://'
+                    + feature.properties.services.webpage_url
+                    + '\">'
+                    + feature.properties.services.webpage_url
+                    + '</a>'
+        } else {
+          webpage = 'Nu are pagină pe domeniul propriu.'
+        };
+        // verifică dacă există valoare pentru catalog
+        if(feature.properties.services.catalog.url) {
+          catalog = '<a href=\"http://'
+                + feature.properties.services.catalog.url
+                + '\">'
+                + feature.properties.services.catalog.url
+                + '</a>'
+        } else {
+          catalog = 'Nu are catalog propriu.'
+        };
+
+        // configurarea conținutului care apare în popup
+        var popupText = feature.properties.name[0].official_name + ', ' + feature.properties.address[0].loc +
+                        '<br>Adresă: ' + feature.properties.address[0].loc +
+                        '<br>Site: ' + webpage +
+                        '<br>Catalog: ' + catalog;
+
+        layer.bindPopup(popupText);
+      };
+
+      // IConuri construite cu pluginul Leaflet.awesome-markers
+      var universityROLibsIcon = L.AwesomeMarkers.icon({
+        icon: 'cog',
+        markerColor: 'green'
+      });
+
+      var addROuniversityLibs = L.geoJson(data, {
+        style: style,
+        onEachFeature: onEachFeature,
+        filter: function(feature, layer) {
+            // return !feature.properties.qualifiers.is_village && !feature.properties.qualifiers.is_county;
+            return !feature.properties.qualifiers.is_village &&
+            !feature.properties.qualifiers.is_county &&
+            !feature.properties.qualifiers.is_city   &&
+            !feature.properties.qualifiers.is_branch &&
+            !feature.properties.qualifiers.is_national &&
+            !feature.properties.qualifiers.is_museum &&
+            !feature.properties.qualifiers.is_part_of &&
+            !feature.properties.qualifiers.is_school &&
+            !feature.properties.qualifiers.is_municipal;
+        },
+        pointToLayer: function (feature, latlng) {
+          return L.marker(latlng, {icon: universityROLibsIcon});
+        },
+      });
+
+      layers.addLayer(addROuniversityLibs);
+    });
+  };
+
+  // BIBLOTECILE SATEȘTI
+  if(option === 'is_village'){
+    $.getJSON("http://localhost:3000/api/geodata/features/nuts3ro/" + noCounty, function(data){
+      var style ={
+        // fillColor: 'orange'
+      };
+
+      function onEachFeature(feature, layer) {
+
+        var webpage = '', catalog = '';
+        // verifică dacă există valoare pentru pagină de web proprie
+        if(feature.properties.services.webpage_url) {
+          webpage = '<a href=\"http://'
+                    + feature.properties.services.webpage_url
+                    + '\">'
+                    + feature.properties.services.webpage_url
+                    + '</a>'
+        } else {
+          webpage = 'Nu are pagină pe domeniul propriu.'
+        };
+        // verifică dacă există valoare pentru catalog
+        if(feature.properties.services.catalog.url) {
+          catalog = '<a href=\"http://'
+                + feature.properties.services.catalog.url
+                + '\">'
+                + feature.properties.services.catalog.url
+                + '</a>'
+        } else {
+          catalog = 'Nu are catalog propriu.'
+        };
+
+        // configurarea conținutului care apare în popup
+        var popupText = feature.properties.name[0].official_name + ', ' + feature.properties.address[0].loc +
+                        '<br>Adresă: ' + feature.properties.address[0].loc +
+                        '<br>Site: ' + webpage +
+                        '<br>Catalog: ' + catalog;
+
+        layer.bindPopup(popupText);
+      };
+
+      // IConuri construite cu pluginul Leaflet.awesome-markers
+      var villageLibsIcon = L.AwesomeMarkers.icon({
+        icon: 'bookmark',
+        markerColor: 'orange'
+      });
+
+      var addROvillageLibs = L.geoJson(data, {
+        style: style,
+        onEachFeature: onEachFeature,
+        filter: function(feature, layer) {
+            return !feature.properties.qualifiers.is_county &&
+                   !feature.properties.qualifiers.is_city   &&
+                   !feature.properties.qualifiers.is_municipal &&
+                   !feature.properties.qualifiers.is_branch &&
+                   !feature.properties.qualifiers.is_national &&
+                   !feature.properties.qualifiers.is_museum &&
+                   !feature.properties.qualifiers.is_part_of &&
+                   !feature.properties.qualifiers.is_school &&
+                   !feature.properties.qualifiers.is_university;
+        },
+        pointToLayer: function (feature, latlng) {
+          return L.marker(latlng, {icon: villageLibsIcon});
+        },
+      });
+
+      layers.addLayer(addROvillageLibs);
+    });
+  };
+
+  // FILIALE JUDEȚENE
+  if(option === 'is_branch'){
+    $.getJSON("http://localhost:3000/api/geodata/features/nuts3ro/" + noCounty, function(data){
+      var style ={
+        // fillColor: 'orange'
+      };
+
+      function onEachFeature(feature, layer) {
+
+        var webpage = '', catalog = '';
+        // verifică dacă există valoare pentru pagină de web proprie
+        if(feature.properties.services.webpage_url) {
+          webpage = '<a href=\"http://'
+                    + feature.properties.services.webpage_url
+                    + '\">'
+                    + feature.properties.services.webpage_url
+                    + '</a>'
+        } else {
+          webpage = 'Nu are pagină pe domeniul propriu.'
+        };
+        // verifică dacă există valoare pentru catalog
+        if(feature.properties.services.catalog.url) {
+          catalog = '<a href=\"http://'
+                + feature.properties.services.catalog.url
+                + '\">'
+                + feature.properties.services.catalog.url
+                + '</a>'
+        } else {
+          catalog = 'Nu are catalog propriu.'
+        };
+
+        // configurarea conținutului care apare în popup
+        var popupText = feature.properties.name[0].official_name + ', ' + feature.properties.address[0].loc +
+                        '<br>Adresă: ' + feature.properties.address[0].loc +
+                        '<br>Site: ' + webpage +
+                        '<br>Catalog: ' + catalog;
+
+        layer.bindPopup(popupText);
+      };
+
+      // IConuri construite cu pluginul Leaflet.awesome-markers
+      var branchLibsIcon = L.AwesomeMarkers.icon({
+        icon: 'spinner',
+        prefix: 'fa',
+        markerColor: 'red',
+        spin: true
+      });
+
+      var addROCountyBranchesLibs = L.geoJson(data, {
+        style: style,
+        onEachFeature: onEachFeature,
+        filter: function(feature, layer) {
+          return !feature.properties.qualifiers.is_county &&
+                 !feature.properties.qualifiers.is_city   &&
+                 !feature.properties.qualifiers.is_municipal &&
+                 !feature.properties.qualifiers.is_village &&
+                 !feature.properties.qualifiers.is_national &&
+                 !feature.properties.qualifiers.is_museum &&
+                 !feature.properties.qualifiers.is_part_of &&
+                 !feature.properties.qualifiers.is_school &&
+                 !feature.properties.qualifiers.is_university;
+        },
+        pointToLayer: function (feature, latlng) {
+          return L.marker(latlng, {icon: branchLibsIcon});
+        },
+      });
+
+      layers.addLayer(addROCountyBranchesLibs);
+    });
+  };
+};
 
 // TODO: Adu features pe o cerere parametrizată
 // 1. per regiune de dezvoltare

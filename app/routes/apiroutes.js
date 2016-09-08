@@ -32,15 +32,9 @@ module.exports = function (app) {
   app.get('/api/geodata/features', function(req, res){
     Georef.find({}, function(err, features){
       if(err) return done(err);
-      res.json(features);  app.get('/api/geodata/features/nuts3ro/:county', function(req, res){
-    Georef.find({'properties.identifiers.code_county':req.params.county }, function(err, features){
-      if(err) return done(err);
       res.json(features);
     });
   });
-    });
-  });
-
 
   // ADU O SINGURĂ BIBLIOTECĂ - atenție, ID-ul este cel generat la intrarea în bază
   app.get('/api/geodata/features/:id', function(req, res){
