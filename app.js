@@ -17,6 +17,7 @@ var Promise     = global.Promise || require('promise'),
     config      = require('./config/config'),
     bcrypt      = require('bcrypt-nodejs'),
     tplHelpers  = require('./app/libs/tplHelpers');
+    require('./app/routes/mapSocketsData')(io);
     // ambaleaza middleware-ul Express într-un server http
     // executa socket.io pasandu-i serverul
     // împachetarea serverului în socket.io permite folosirea căii din frontend <script src="/socket.io/socket.io.js" charset="utf-8"></script>
@@ -103,12 +104,12 @@ require('./app/routes/apiroutes')(app);
  */
 io.on('connect', function(socket){
   // indica cine se conectează
-  console.log(`S-a conectat ${socket.id}`);
+  // console.log(`S-a conectat ${socket.id}`);
 
   // stabilirea canalului mesaje
   socket.on('mesaje', function(data){
-    console.log(`Serverul a primit: ${data}`);
-    socket.emit('mesaje', 'Bine ai venit pe canalul mesaje!');
+    console.log(`[server <--] Serverul a primit: ${data}`);
+    socket.emit('mesaje', `[server -->] ${socket.id} a scris: ${data}`);
   });
 
   // CANAL CREARE UTILIZATOR
@@ -182,6 +183,16 @@ io.on('connect', function(socket){
             });
   });
 });
+
+// CREEZI UN CHAT
+var dialog = io.of('/dialog')
+               .on('connection', function(socket){
+                 socket.emit('echo', `[server -->] Serverul te salută, ${socket.id}`);
+                 socket.on('echo', function(data){
+                   console.log(data);
+                   socket.broadcast.emit(`[server <--] S-a conectat ${socket.id}`);
+                 });
+                });
 
 /**
  * ERROR MANAGEMENT

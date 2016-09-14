@@ -70,6 +70,8 @@
 
     conf = $.extend(defaultConf, conf || {});
 
+    $(window).trigger('formValidationPluginInit', [conf]);
+
     if( conf.lang && conf.lang !== 'en' ) {
       var langModule = 'lang/'+conf.lang+'.js';
       conf.modules += conf.modules.length ? ','+langModule : langModule;
@@ -121,7 +123,6 @@
         }
 
         var valid = $form.isValid(conf.language, conf);
-
         if ($.formUtils.haltValidation) {
           // Validation got halted by one of the validators
           return stop();
