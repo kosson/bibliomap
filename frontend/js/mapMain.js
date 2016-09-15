@@ -236,39 +236,11 @@ function addROlibs(option, noCounty){
         },
         pointToLayer: function (feature, latlng) {
   				return L.marker(latlng, {icon: countyLibIcon});
-  			},
+  			}
       });
       // adaugă layerul bibliotecilor județene la grupul layerelor
       liblayers.addLayer(addROcountyLibsCentral);
     });
-
-
-    // $.getJSON("http://localhost:3000/api/geodata/features/romania/capitals", function(data){
-
-      // var style = {
-      //   // fillColor: 'orange'
-      // };
-      //
-      // // Iconuri construite cu pluginul Leaflet.awesome-markers
-      // var countyLibIcon = L.AwesomeMarkers.icon({
-      //   icon: 'star',
-      //   markerColor: 'red'
-      // });
-      //
-      // // construiește layerul bibliotecilor județene
-      // var addROcountyLibsCentral = L.geoJson(data, {
-      //   style: style,
-      //   onEachFeature: onEachFeature,
-      //   filter: function(feature, layer) {
-      //     return feature.properties.qualifiers.is_county && !feature.properties.qualifiers.is_branch;
-      //   },
-      //   pointToLayer: function (feature, latlng) {
-  		// 		return L.marker(latlng, {icon: countyLibIcon});
-  		// 	},
-      // });
-      // // adaugă layerul bibliotecilor județene la grupul layerelor
-      // liblayers.addLayer(addROcountyLibsCentral);
-    // });
   };
 
   // BIBLIOTECILE MUNICIPALE
