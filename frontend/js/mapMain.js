@@ -26,38 +26,326 @@ var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
 // Note the difference in the "lyrs" parameter in the URL:
 // Hybrid: s,h; Satellite: s; Streets: m; Terrain: p;
 
-var liblayers = new L.LayerGroup(); // grup de markeri din straturile generate programatic
-var overlayMaps = {
-  'Biblioteci românești' : liblayers
-};
-var baseMaps = {
-  'Google Streets': googleStreets,
-  // 'Google Hybrid': googleHybrid,
-  // // 'Google Terain': googleTerrain,
-  'Google Sat': googleSat,
-  'Open Street Maps': osm
-};
-
-// adauga layerele de initierea hartii
-var map = L.map('map', {
-    center: [45.924, 25.466],
-    zoom: 7,
-    layers: [osm, liblayers, googleStreets]
-});
+var liblayers = new L.LayerGroup(), // grup de markeri din straturile generate programatic
+    overlayMaps = {
+      'Biblioteci românești' : liblayers
+    },
+    baseMaps = {
+      'Google Streets': googleStreets,
+      // 'Google Hybrid': googleHybrid,
+      // 'Google Terain': googleTerrain,
+      'Google Sat': googleSat,
+      'Open Street Maps': osm
+    },
+    map = L.map('map', {  // adauga layerele de initierea hartii
+        center: [45.924, 25.466],
+        zoom: 7,
+        layers: [osm, liblayers, googleStreets]
+    });
 
 // adaugă la hartă layerele de bază și overlay-urile
 L.control.layers(baseMaps).addTo(map);
 // poți adăuga și overlay-urile la switching.
 
-
-
 // TODO: un mecanism care să preia selecțiile făcute în pagină și să le transforme în date afișate
 
-// LEGENDA FUNCȚIILOR DE MANIPULARE A LAYERELOR
-// addROcounties();                      // aduce coroplethurile județelor
+/**
+ * TABULEAZA DATELE
+ */
+
+// funcție cu rolul de a transforma conținutul unui array într-un form
+// Cazuri de array: array de valori, array de obiecte, array de array
+var objDeTest = {
+    "_id" : "56dabb268fcd207c7557e7a5",
+    "type" : "Feature",
+    "properties" : {
+        "connectors" : [
+            {
+                "connector" : ""
+            }
+        ],
+        "budget" : [
+            {
+                "year" : "2011",
+                "amount" : "12322.45"
+            }
+        ],
+        "services" : {
+            "opening_hours" : "",
+            "webpage_url" : "http://www.bjastrasibiu.ro",
+            "social" : {
+                "twitter" : [
+                    ""
+                ],
+                "instagram" : [
+                    ""
+                ],
+                "youtube" : [
+                    ""
+                ],
+                "facebook" : [
+                    ""
+                ],
+                "blogspot" : [
+                    ""
+                ],
+                "wordpress" : [
+                    ""
+                ]
+            },
+            "syndication_feeds" : [
+                {
+                    "name_feed" : "",
+                    "url_feed" : "",
+                    "_id" : "56dabb268fcd207c7557e7a6"
+                }
+            ],
+            "repository" : [
+                {
+                    "name" : "",
+                    "url" : "",
+                    "query_url" : "",
+                    "api_url" : ""
+                }
+            ],
+            "catalog" : {
+                "url" : "http://www.bjastrasibiu.ro/Liberty3/gateway/gateway.exe?application=Liberty3&amp;displayform=opac/main",
+                "query_url" : "",
+                "api_url" : ""
+            }
+        },
+        "identifiers" : {
+            "code_zone" : 7,
+            "code_county" : 32,
+            "code_siruta" : 143450,
+            "LMI" : ""
+        },
+        "address" : [
+            {
+                "loc" : "Sibiu",
+                "street" : "George Barițiu, Nr. 5-7",
+                "postal_code" : "",
+                "obs" : "",
+                "date" : "2016-03-05T10:55:34.175Z"
+            }
+        ],
+        "qualifiers" : {
+            "is_branch" : false,
+            "is_city" : false,
+            "is_county" : true,
+            "is_municipal" : false,
+            "is_museum" : false,
+            "is_national" : false,
+            "is_school" : false,
+            "is_university" : false,
+            "is_village" : false
+        },
+        "name" : [
+            {
+                "official_name" : "Biblioteca Județeană „Astra”",
+                "name_mark" : "Astra",
+                "date" : "2016-03-05T10:55:34.175Z"
+            }
+        ]
+    },
+    "geometry" : {
+        "type" : "Point",
+        "coordinates" : [
+            24.14625,
+            45.793396
+        ]
+    },
+    "__v" : 0
+};
+var arraySimpluDeTest = [1, 'altceva', true, false, [1, 20, true, ['din interior', false]]];
+
+/**
+ * arrToForm o funcție care generează input-uri și checkbox-uri pentru boolean
+ * @param  {array} arr  array cu mix de valori
+ * @param  {string} name un string care va constitui prefixul unei valori care va sta la name-uri
+ */
+function arrToForm(arr){
+
+  var targetInDOM = document.getElementById('inputDataTable'),
+      frm         = document.createElement('form');
+
+  for(var i = 0, y = arr.length; i < y; i++){
+
+    if(typeof arr[i] === 'number'){
+      var fInputTxt   = document.createElement('input');
+      fInputTxt.type  = 'text';
+      fInputTxt.id    = arr[i];                 // pune id
+      fInputTxt.setAttribute('name', arr[i]);   // pune name
+      fInputTxt.setAttribute('value', arr[i]);  // pune value
+      // fInputTxt.className = 'recDynInputTxt';
+      frm.appendChild(fInputTxt);
+      targetInDOM.appendChild(frm);
+    }
+
+    if(typeof arr[i] === 'string'){
+      var fInputTxt   = document.createElement('input');
+      fInputTxt.type  = 'text';
+      fInputTxt.id    = arr[i];                    // pune id
+      fInputTxt.setAttribute('name', arr[i]);   // pune name
+      fInputTxt.setAttribute('value', arr[i]);  // pune value
+      // fInputTxt.className = 'recDynInputTxt';
+      frm.appendChild(fInputTxt);
+      targetInDOM.appendChild(frm);
+    }
+
+    if(arr[i] === true){
+      var fInputChkBx  = document.createElement('input');
+      fInputChkBx.type = 'checkbox'
+      fInputChkBx.setAttribute('checked', 'checked');
+      fInputChkBx.setAttribute('value', 'true');
+      // fInputTxt.className = 'recDynInputTxt';
+      frm.appendChild(fInputChkBx);
+      targetInDOM.appendChild(frm);
+    }
+
+    if(arr[i] === false){
+      var fInputChkBx  = document.createElement('input');
+      fInputChkBx.type = 'checkbox';
+      fInputChkBx.setAttribute('value', 'false');
+      frm.appendChild(fInputChkBx);
+      targetInDOM.appendChild(frm);
+    }
+
+    if(arr[i] === undefined){
+      var fInputChkBx  = document.createElement('input');
+      fInputChkBx.type = 'text';
+      fInputChkBx.setAttribute('value', 'false');
+      frm.appendChild(fInputTxt);
+      targetInDOM.appendChild(frm);
+    }
+
+    if(Array.isArray(arr[i])){
+      arrToForm(arr[i]);
+    }
+
+    //TODO: introdu si cazul in care membrul este un obiect
+    if(typeof arr[i] === 'object'){
+      objToForm((arr[i]));
+    }
+  };
+};
+
+function objToForm(obj){
+
+  /**
+   * Funcția generează câmpuri de formular pentru fiecare string sau nr identificat de
+   * o proprietate dintr-un JSON. Pentru fiecare dintre acestea face un fildset în care
+   * este pus numele proprietății și un câmp input type='text' pentru valoare. Acest input
+   * are drept id chiar valoarea string în sine.
+   * Funcția este folosită ca bloc constructiv pentru transformarea GeoJSON-urilor într-o
+   * formă tabelară care pentru fiecare bloc de informație este generat un formular ce va fi
+   * ușor de folosit pentru modificarea bazei de date.
+   * @param  {string} val   valoarea string sau numar
+   * @param  {string} nProp este stringul care numește proprietatea din obiect afișată
+   */
+  function valToField(val, nProp){
+    var fInputTxt   = document.createElement('input'),
+        fLabel      = document.createElement('label'),
+        fLabelTxt   = document.createTextNode(val),
+        fFieldset   = document.createElement('fieldset'),
+        fLegend     = document.createElement('legend'),
+        fLegendTxt  = document.createTextNode(nProp);
+
+    fLabel.setAttribute('for', val);
+    fLabel.appendChild(fLabelTxt);
+
+    fInputTxt.type  = 'text';
+    fInputTxt.id    = val;                 // pune id
+    fInputTxt.setAttribute('name', val);   // pune name
+    fInputTxt.setAttribute('value', val);  // pune value
+    fInputTxt.className = 'dynInputsFrm';
+
+    // bagi in fFieldset --> fInputTxt
+    fLegend.appendChild(fLegendTxt);
+    fFieldset.appendChild(fLegend);
+    fFieldset.appendChild(fLabel);
+    fFieldset.appendChild(fInputTxt);
+
+    frm.appendChild(fFieldset);
+    targetInDOM.appendChild(frm);
+  };
+
+  function propToFieldset(property, name){
+    var fInputTxt   = document.createElement('input'),
+        fFieldset   = document.createElement('fieldset'),
+        fLegend     = document.createElement('legend'),
+        fLegendTxt  = document.createTextNode(name);
+
+    fInputTxt.type  = 'text';
+    fInputTxt.id    = property                  // pune id
+    fInputTxt.setAttribute('name', property);   // pune name
+    fInputTxt.setAttribute('value', property);  // pune value
+    fInputTxt.className = 'dynInputsFrm';
+
+    // bagi in fFieldset --> fInputTxt
+    fLegend.appendChild(fLegendTxt);
+    fFieldset.appendChild(fLegend);
+
+    frm.appendChild(fFieldset);
+    targetInDOM.appendChild(frm);
+
+    if(typeof property === 'object'){
+      objToForm(property);
+    };
+  };
+
+  /**
+   * PRELUCRAREA FIECĂREI PROPRIETĂȚI
+   */
+  for (var prop in obj) {
+
+    // console.log(prop); // _id, type, properties, geometry, __v
+    // console.log(JSON.stringify(obj[prop]));
+
+    // proprietățile aparțin obiectului?
+    if (obj.hasOwnProperty(prop)) {
+
+      var targetInDOM = document.getElementById('inputDataTable'),
+          frm         = document.createElement('form');
+
+      // ARRAY SIMPLU DE VALORI
+      if(Array.isArray(obj[prop])){
+        arrToForm(obj[prop]);
+        objToForm(obj[prop]);
+      };
+
+      // STRING
+      if(typeof obj[prop] === 'string'){
+        valToField(obj[prop], prop);
+      };
+
+      // NUMBER
+      if(typeof obj[prop] === 'number'){
+        valToField(obj[prop], prop);
+      };
+
+      // OBJECT
+      if(typeof obj[prop] === 'object'){
+
+        propToFieldset(obj[prop], prop);
+
+      };
+    };
+  };
+};
+
+objToForm(objDeTest);
+
+
+/**
+ * LEGENDA FUNCȚIILOR DE MANIPULARE A LAYERELOR
+ */
+addROcounties();                       // aduce coroplethurile județelor
+// addROcounties(5);                      // aduce coropleth județ menționat --> NEFUNCTIONAL
+
 addROlibs('is_county');               // aduce doar bibliotecile județene
 
-// addROlibs('is_municipal', 5);         // aduce bibliotecile municiplale pentru un județ
+addROlibs('is_municipal', 5);         // aduce bibliotecile municiplale pentru un județ
 // addROlibs('is_municipal', 'RO');      // aduce biliotecile municipale pentru întreaga țară
 
 // addROlibs('is_city', 5);              // aduce bibliotecile orășenești dintr-un județ
@@ -66,16 +354,16 @@ addROlibs('is_county');               // aduce doar bibliotecile județene
 // addROlibs('is_university', 5);        // aduce bibliotecile universitare dintr-un județ
 // addROlibs('is_university', 'RO');  // aduce bibliotecile universitare din toată țara
 
-// addROlibs('is_village', 5);           // aduce bibliotecile sătești și comunale dintr-un județ
+addROlibs('is_village', 25);           // aduce bibliotecile sătești și comunale dintr-un județ
 // addROlibs('is_village', 'RO');     // aduce bibliotecile sătești și comunale din țară
 
-// addROlibs('is_branch', 5);            // aduce bibliotecile sătești și comunale dintr-un județ
+addROlibs('is_branch', 5);            // aduce bibliotecile sătești și comunale dintr-un județ
 // addROlibs('is_branch', 'RO');         // aduce bibliotecile sătești și comunale dintr-un județ
 
 // addROlibs('is_museum', 40);
 // addROlibs('is_museum', 'RO');
 
-// addROlibs('is_national', 5);
+// addROlibs('is_national', 40);
 // addROlibs('is_national', 'RO');
 
 // addROlibs('is_school', 5);
@@ -87,72 +375,69 @@ addROlibs('is_county');               // aduce doar bibliotecile județene
 
 // COROPHETH-urile județelor
 function addROcounties (option){
-  if (!option){
 
-    // TODO: adu toate judetele si feature-urile pentru județene
-    $.getJSON("http://localhost:3000/api/geodata/nuts3ro", function (data) {
-      var addROcounties;
+  // este nevoie de referinta pentru a face resetul functional
+  var addROcounties;
 
-      // definirea stilului general al coropleth-ului
-      var style = {
-        // fillColor: 'getColor(feature.properties.density)',
-        // fillColor: function(feature){
-        //   switch(feature.properties.name){
-        //     case 40: return {color: "#ff0000"};
-        //   }
-        // },
-        fillColor: 'orange',
-        weight: 0.5,
-        opacity: 1,
-        color: 'white',
-        // dashArray: '2',
-        fillOpacity: 0.2,
-      };
+  function style(feature){
+    return {
+      fillColor: 'orange',
+      weight: 0.5,
+      opacity: 1,
+      color: 'white',
+      fillOpacity: 0.2,
+    };
+  };
 
-      // event pentru mouseover
-      function highlightFeature(e) {
-        var layer = e.target;
+  // event listener pentru mouseover
+  function highlightFeature(e) {
+    var layer = e.target;
 
-        layer.setStyle({
-          fillColor: 'orange',
-          weight: 4,
-          color: 'orange',
-          // dashArray: '5',
-          // fillOpacity: 0.5
-        });
-        if (!L.Browser.ie && !L.Browser.opera) {
-          layer.bringToFront();
-        }
-      };
+    layer.setStyle({
+      // fillColor: 'orange',
+      weight: 4,
+      // color: 'orange'
+    });
 
-      // ce se intampla pe mouseout
-      function resetHighlight(e) {
-        addROcounties.resetStyle(e.target);
-      };
+    if (!L.Browser.ie && !L.Browser.opera) {
+      layer.bringToFront();
+    }
+  };
 
-      // CE SE ÎNTÂMPLĂ CÎND DAI CLIC PE JUDEȚ
-      function zoomToFeature(e) {
-        map.fitBounds(e.target.getBounds());
-      };
+  // ce se intampla pe mouseout
+  function resetHighlight(e) {
+    addROcounties.resetStyle(e.target);
+  };
 
-      // integreaza comportamentele definite pentru tooate elementele
-      function onEachFeature(feature, layer) {
-        layer.on({
-          mouseover: highlightFeature,
-          mouseout: resetHighlight,
-          click: zoomToFeature
-        });
-      };
+  // click pe județ și se încadrează în limite
+  function zoomToFeature(e) {
+    // TODO: apeleaza o functie care sa aduca datele despre judet
 
-      // integreaza in harta
-      addROcounties = L.geoJson(data, {
-          style: style,
-          onEachFeature: onEachFeature
-      });
+    var limite = e.target.getBounds();
+    map.fitBounds(limite);
+  };
 
-      layers.addLayer(addROcounties);
+  // integreaza comportamentele definite pentru tooate elementele
+  function onEachFeature(feature, layer) {
+    layer.on({
+      mouseover: highlightFeature,
+      mouseout: resetHighlight,
+      click: zoomToFeature
     });
   };
+
+  // Pune cap la cap style și onEachFeature
+  addROcounties = {
+      style: style,
+      onEachFeature: onEachFeature
+  };
+
+  socket.emit('mesaje', `[client -->] Adu-mi coropleth-urile județelor`);
+  socket.emit('county_ro_corplt', true);
+  socket.on('county_ro_corplt', function(data){
+    addROcounties = L.geoJson(data, addROcounties); // este cum va apărea layerul fără evenimente setate(la ce revine resetStyle)
+    liblayers.addLayer(addROcounties);
+  });
 };
 
 // MARKERI BIBLIOTECI
@@ -209,13 +494,14 @@ function addROlibs(option, noCounty){
 
   // BIBLIOTECI JUDEȚENE FĂRĂ FILIALE
   if(option === 'is_county'){
-
-    /**
-     * ÎNLOCUIRE CU SOCKETURI
-     */
     socket.emit('mesaje', `[client -->] Adu-mi bibliotecile județene fără filiale`);
     socket.emit('is_county_ro', true);
     socket.on('is_county_ro', function(data){
+
+      // TODO: cheamă o funcție care transformă datele într-un tabel
+
+      // document.body.appendChild(buildHTMLDataTable(data));
+      // jsonMultiDimParser(data);
 
       var style = {
         // fillColor: 'orange'
@@ -245,6 +531,7 @@ function addROlibs(option, noCounty){
 
   // BIBLIOTECILE MUNICIPALE
   if(option === 'is_municipal'){
+
     // definirea unui posibil stil pentru municipale
     var style = {
       // fillColor: 'orange'
@@ -256,31 +543,31 @@ function addROlibs(option, noCounty){
       markerColor: 'blue'
     });
 
+    var addROmunicipalLibsSet = {
+      style: style,
+      onEachFeature: onEachFeature,
+      pointToLayer: function (feature, latlng) {
+        return L.marker(latlng, {icon: municipalLibsIcon});
+      }
+    };
+
     // Dacă este pasat ca al doilea parametru 'RO', atunci adu markerele specificate pentru toată țara
     if(noCounty === 'RO'){
-      $.getJSON("http://localhost:3000/api/geodata/features/romania/municipal", function(data){
-        var addROmunicipalLibs = L.geoJson(data, {
-          style: style,
-          onEachFeature: onEachFeature,
-          pointToLayer: function (feature, latlng) {
-            return L.marker(latlng, {icon: municipalLibsIcon});
-          }
-        });
-        layers.addLayer(addROmunicipalLibs);
+      // indică că dorești markere pentru toate municipiile prin true
+      socket.emit('mesaje', `[client -->] Adu-mi bibliotecile municipale din toată țara`);
+      socket.emit('is_municipal_ro', true);
+      socket.on('is_municipal_ro', function(data){
+        liblayers.addLayer(L.geoJson(data, addROmunicipalLibsSet));
       });
     } else {
-      $.getJSON("http://localhost:3000/api/geodata/features/romania/municipal/" + noCounty, function(data){
-        var addROmunicipalLibs = L.geoJson(data, {
-          style: style,
-          onEachFeature: onEachFeature,
-          pointToLayer: function (feature, latlng) {
-            return L.marker(latlng, {icon: municipalLibsIcon});
-          }
-        });
-        layers.addLayer(addROmunicipalLibs);
+      // indică că dorești markere pentru municipiile dintr-un județ
+      socket.emit('mesaje', `[client -->] Adu-mi bibliotecile municipale din județul ${noCounty}`);
+      socket.emit('is_municipal_ro', noCounty);
+      socket.on('is_municipal_ro', function(data){
+        liblayers.addLayer(L.geoJson(data, addROmunicipalLibsSet));
       });
     };
-  }
+  };
 
   // BIBLIOTECI ORĂȘENEȘTI
   if(option === 'is_city'){
@@ -296,28 +583,27 @@ function addROlibs(option, noCounty){
       markerColor: 'red'
     });
 
-    // Dacă este pasat ca al doilea parametru 'RO', atunci adu markerele specificate pentru toată țara
+    var addROcityLibs = {
+      style: style,
+      onEachFeature: onEachFeature,
+      pointToLayer: function (feature, latlng) {
+        return L.marker(latlng, {icon: cityROLibsIcon});
+      }
+    };
+
     if(noCounty === 'RO'){
-      $.getJSON("http://localhost:3000/api/geodata/features/romania/city", function(data){
-        var addROcityLibs = L.geoJson(data, {
-          style: style,
-          onEachFeature: onEachFeature,
-          pointToLayer: function (feature, latlng) {
-            return L.marker(latlng, {icon: cityROLibsIcon});
-          },
-        });
-        layers.addLayer(addROcityLibs);
+      // indică că dorești markere pentru toate municipiile prin true
+      socket.emit('mesaje', `[client -->] Adu-mi bibliotecile orășenești din toată țara`);
+      socket.emit('is_city_ro', true);
+      socket.on('is_city_ro', function(data){
+        liblayers.addLayer(L.geoJson(data, addROcityLibs));
       });
     } else {
-      $.getJSON("http://localhost:3000/api/geodata/features/romania/city/" + noCounty, function(data){
-        var addROcityLibs = L.geoJson(data, {
-          style: style,
-          onEachFeature: onEachFeature,
-          pointToLayer: function (feature, latlng) {
-            return L.marker(latlng, {icon: cityROLibsIcon});
-          },
-        });
-        liblayers.addLayer(addROcityLibs);
+      // indică că dorești markere pentru municipiile dintr-un județ
+      socket.emit('mesaje', `[client -->] Adu-mi bibliotecile orășenești din județul ${noCounty}`);
+      socket.emit('is_city_ro', noCounty);
+      socket.on('is_city_ro', function(data){
+        liblayers.addLayer(L.geoJson(data, addROcityLibs));
       });
     };
   };
@@ -335,27 +621,27 @@ function addROlibs(option, noCounty){
       markerColor: 'green'
     });
 
+    var addROuniversityLibs = {
+      style: style,
+      onEachFeature: onEachFeature,
+      pointToLayer: function (feature, latlng) {
+        return L.marker(latlng, {icon: universityROLibsIcon});
+      }
+    };
+
     if(noCounty === 'RO'){
-      $.getJSON("http://localhost:3000/api/geodata/features/romania/university", function(data){
-        var addROuniversityLibs = L.geoJson(data, {
-          style: style,
-          onEachFeature: onEachFeature,
-          pointToLayer: function (feature, latlng) {
-            return L.marker(latlng, {icon: universityROLibsIcon});
-          },
-        });
-        layers.addLayer(addROuniversityLibs);
+      // indică că dorești markere pentru toate universitarele prin true
+      socket.emit('mesaje', `[client -->] Adu-mi bibliotecile universitare din toată țara`);
+      socket.emit('is_university_ro', true);
+      socket.on('is_university_ro', function(data){
+        liblayers.addLayer(L.geoJson(data,addROuniversityLibs));
       });
     } else {
-      $.getJSON("http://localhost:3000/api/geodata/features/romania/university/" + noCounty, function(data){
-        var addROuniversityLibs = L.geoJson(data, {
-          style: style,
-          onEachFeature: onEachFeature,
-          pointToLayer: function (feature, latlng) {
-            return L.marker(latlng, {icon: universityROLibsIcon});
-          },
-        });
-        liblayers.addLayer(addROuniversityLibs);
+      // indică că dorești markere pentru universitarele dintr-un județ
+      socket.emit('mesaje', `[client -->] Adu-mi bibliotecile universitare din județul ${noCounty}`);
+      socket.emit('is_university_ro', noCounty);
+      socket.on('is_university_ro', function(data){
+        liblayers.addLayer(L.geoJson(data,addROuniversityLibs));
       });
     };
   };
@@ -372,28 +658,27 @@ function addROlibs(option, noCounty){
       markerColor: 'orange'
     });
 
-    if(noCounty === 'RO'){
-      $.getJSON("http://localhost:3000/api/geodata/features/romania/village", function(data){
-        var addROvillageLibs = L.geoJson(data, {
-          style: style,
-          onEachFeature: onEachFeature,
-          pointToLayer: function (feature, latlng) {
-            return L.marker(latlng, {icon: villageLibsIcon});
-          },
-        });
+    var addROvillageLibs = {
+      style: style,
+      onEachFeature: onEachFeature,
+      pointToLayer: function (feature, latlng) {
+        return L.marker(latlng, {icon: villageLibsIcon});
+      }
+    };
 
-        layers.addLayer(addROvillageLibs);
+    if(noCounty === 'RO'){
+      // indică că dorești markere pentru toate universitarele prin true
+      socket.emit('mesaje', `[client -->] Adu-mi bibliotecile sătești din toată țara`);
+      socket.emit('is_village_ro', true);
+      socket.on('is_village_ro', function(data){
+        liblayers.addLayer(L.geoJson(data, addROvillageLibs));
       });
     } else {
-      $.getJSON("http://localhost:3000/api/geodata/features/romania/village/" + noCounty, function(data){
-        var addROvillageLibs = L.geoJson(data, {
-          style: style,
-          onEachFeature: onEachFeature,
-          pointToLayer: function (feature, latlng) {
-            return L.marker(latlng, {icon: villageLibsIcon});
-          },
-        });
-        liblayers.addLayer(addROvillageLibs);
+      // indică că dorești markere pentru universitarele dintr-un județ
+      socket.emit('mesaje', `[client -->] Adu-mi bibliotecile sătești din județul ${noCounty}`);
+      socket.emit('is_village_ro', noCounty);
+      socket.on('is_village_ro', function(data){
+        liblayers.addLayer(L.geoJson(data, addROvillageLibs));
       });
     };
   };
@@ -412,28 +697,27 @@ function addROlibs(option, noCounty){
       spin: true
     });
 
-    if(noCounty === 'RO'){
-      $.getJSON("http://localhost:3000/api/geodata/features/romania/branch", function(data){
-        var addROBranchesLibs = L.geoJson(data, {
-          style: style,
-          onEachFeature: onEachFeature,
-          pointToLayer: function (feature, latlng) {
-            return L.marker(latlng, {icon: branchLibsIcon});
-          },
-        });
+    var addROBranchesLibs = {
+      style: style,
+      onEachFeature: onEachFeature,
+      pointToLayer: function (feature, latlng) {
+        return L.marker(latlng, {icon: branchLibsIcon});
+      }
+    };
 
-        layers.addLayer(addROBranchesLibs);
+    if(noCounty === 'RO'){
+      // indică că dorești markere pentru toate universitarele prin true
+      socket.emit('mesaje', `[client -->] Adu-mi bibliotecile filiale din toată țara`);
+      socket.emit('is_branch_ro', true);
+      socket.on('is_branch_ro', function(data){
+        liblayers.addLayer(L.geoJson(data, addROBranchesLibs));
       });
     } else {
-      $.getJSON("http://localhost:3000/api/geodata/features/romania/branch/" + noCounty, function(data){
-        var addROBranchesLibs = L.geoJson(data, {
-          style: style,
-          onEachFeature: onEachFeature,
-          pointToLayer: function (feature, latlng) {
-            return L.marker(latlng, {icon: branchLibsIcon});
-          },
-        });
-        liblayers.addLayer(addROBranchesLibs);
+      // indică că dorești markere pentru universitarele dintr-un județ
+      socket.emit('mesaje', `[client -->] Adu-mi filialele din județul ${noCounty}`);
+      socket.emit('is_branch_ro', noCounty);
+      socket.on('is_branch_ro', function(data){
+        liblayers.addLayer(L.geoJson(data, addROBranchesLibs));
       });
     };
   };
@@ -451,29 +735,27 @@ function addROlibs(option, noCounty){
       markerColor: 'cadeblue'
     });
 
-    if(noCounty === 'RO'){
-      $.getJSON("http://localhost:3000/api/geodata/features/romania/museum", function(data){
-        var addROmuseumLibs = L.geoJson(data, {
-          style: style,
-          onEachFeature: onEachFeature,
-          pointToLayer: function (feature, latlng) {
-            return L.marker(latlng, {icon: museumLibsIcon});
-          },
-        });
+    var addROmuseumLibs = {
+      style: style,
+      onEachFeature: onEachFeature,
+      pointToLayer: function (feature, latlng) {
+        return L.marker(latlng, {icon: museumLibsIcon});
+      }
+    };
 
-        layers.addLayer(addROmuseumLibs);
+    if(noCounty === 'RO'){
+      // indică că dorești markere pentru toate universitarele prin true
+      socket.emit('mesaje', `[client -->] Adu-mi bibliotecile muzeelor din toată țara`);
+      socket.emit('is_museum_ro', true);
+      socket.on('is_museum_ro', function(data){
+        liblayers.addLayer(L.geoJson(data, addROmuseumLibs));
       });
     } else {
-      $.getJSON("http://localhost:3000/api/geodata/features/romania/museum/" + noCounty, function(data){
-        var addROmuseumLibs = L.geoJson(data, {
-          style: style,
-          onEachFeature: onEachFeature,
-          pointToLayer: function (feature, latlng) {
-            return L.marker(latlng, {icon: museumLibsIcon});
-          },
-        });
-
-        liblayers.addLayer(addROmuseumLibs);
+      // indică că dorești markere pentru universitarele dintr-un județ
+      socket.emit('mesaje', `[client -->] Adu-mi bibliotecile muzeelor din județul ${noCounty}`);
+      socket.emit('is_museum_ro', noCounty);
+      socket.on('is_museum_ro', function(data){
+        liblayers.addLayer(L.geoJson(data, addROmuseumLibs));
       });
     };
   };
@@ -493,27 +775,27 @@ function addROlibs(option, noCounty){
       // markerColor: 'cadeblue'
     });
 
+    var addROnationalLibs = {
+      style: style,
+      onEachFeature: onEachFeature,
+      pointToLayer: function (feature, latlng) {
+        return L.marker(latlng, {icon: nationalLibsIcon});
+      }
+    };
+
     if(noCounty === 'RO'){
-      $.getJSON("http://localhost:3000/api/geodata/features/romania/national", function(data){
-        var addROnationalLibs = L.geoJson(data, {
-          style: style,
-          onEachFeature: onEachFeature,
-          pointToLayer: function (feature, latlng) {
-            return L.marker(latlng, {icon: nationalLibsIcon});
-          },
-        });
-        layers.addLayer(addROnationalLibs);
+      // indică că dorești markere pentru toate universitarele prin true
+      socket.emit('mesaje', `[client -->] Adu-mi bibliotecile naționale toată țara`);
+      socket.emit('is_national_ro', true);
+      socket.on('is_national_ro', function(data){
+        liblayers.addLayer(L.geoJson(data, addROnationalLibs));
       });
     } else {
-      $.getJSON("http://localhost:3000/api/geodata/features/romania/national/" + noCounty, function(data){
-        var addROnationalLibs = L.geoJson(data, {
-          style: style,
-          onEachFeature: onEachFeature,
-          pointToLayer: function (feature, latlng) {
-            return L.marker(latlng, {icon: nationalLibsIcon});
-          },
-        });
-        liblayers.addLayer(addROnationalLibs);
+      // indică că dorești markere pentru universitarele dintr-un județ
+      socket.emit('mesaje', `[client -->] Adu-mi bibliotecile naționale din județul ${noCounty}`);
+      socket.emit('is_national_ro', noCounty);
+      socket.on('is_national_ro', function(data){
+        liblayers.addLayer(L.geoJson(data, addROnationalLibs));
       });
     };
   };
@@ -532,27 +814,27 @@ function addROlibs(option, noCounty){
       iconColor: '#f3e5ab'
     });
 
+    var addROschoolLibs = {
+      style: style,
+      onEachFeature: onEachFeature,
+      pointToLayer: function (feature, latlng) {
+        return L.marker(latlng, {icon: schoolLibsIcon});
+      }
+    };
+
     if(noCounty === 'RO'){
-      $.getJSON("http://localhost:3000/api/geodata/features/romania/school", function(data){
-        var addROschoolLibs = L.geoJson(data, {
-          style: style,
-          onEachFeature: onEachFeature,
-          pointToLayer: function (feature, latlng) {
-            return L.marker(latlng, {icon: schoolLibsIcon});
-          },
-        });
-        layers.addLayer(addROschoolLibs);
+      // indică că dorești markere pentru toate universitarele prin true
+      socket.emit('mesaje', `[client -->] Adu-mi bibliotecile școlare toată țara`);
+      socket.emit('is_school_ro', true);
+      socket.on('is_school_ro', function(data){
+        liblayers.addLayer(L.geoJson(data, addROschoolLibs));
       });
     } else {
-      $.getJSON("http://localhost:3000/api/geodata/features/romania/school/" + noCounty, function(data){
-        var addROschoolLibs = L.geoJson(data, {
-          style: style,
-          onEachFeature: onEachFeature,
-          pointToLayer: function (feature, latlng) {
-            return L.marker(latlng, {icon: schoolLibsIcon});
-          },
-        });
-        liblayers.addLayer(addROschoolLibs);
+      // indică că dorești markere pentru universitarele dintr-un județ
+      socket.emit('mesaje', `[client -->] Adu-mi bibliotecile școlare din județul ${noCounty}`);
+      socket.emit('is_school_ro', noCounty);
+      socket.on('is_school_ro', function(data){
+        liblayers.addLayer(L.geoJson(data, addROschoolLibs));
       });
     };
   };
@@ -571,39 +853,27 @@ function addROlibs(option, noCounty){
       iconColor: '#ff7f50'
     });
 
+    var addROpartOfLibs = {
+      style: style,
+      onEachFeature: onEachFeature,
+      pointToLayer: function (feature, latlng) {
+        return L.marker(latlng, {icon: partOfLibsIcon});
+      },
+    };
+
     if(noCounty === 'RO'){
-      $.getJSON("http://localhost:3000/api/geodata/features/romania/partof", function(data){
-        var addROpartOfLibs = L.geoJson(data, {
-          style: style,
-          onEachFeature: onEachFeature,
-          // filter: function(feature, layer) {
-          //     return feature.properties.qualifiers.is_national &&
-          //     !feature.properties.qualifiers.is_branch &&
-          //     !feature.properties.qualifiers.is_city &&
-          //     !feature.properties.qualifiers.is_county &&
-          //     !feature.properties.qualifiers.is_municipal &&
-          //     !feature.properties.qualifiers.is_village &&
-          //     !feature.properties.qualifiers.is_museum &&
-          //     !feature.properties.qualifiers.is_part_of &&
-          //     !feature.properties.qualifiers.is_school &&
-          //     !feature.properties.qualifiers.is_university;
-          // },
-          pointToLayer: function (feature, latlng) {
-            return L.marker(latlng, {icon: partOfLibsIcon});
-          },
-        });
-        layers.addLayer(addROpartOfLibs);
+      // indică că dorești markere pentru toate universitarele prin true
+      socket.emit('mesaje', `[client -->] Adu-mi bibliotecile părți ale altor instituții toată țara`);
+      socket.emit('is_part_of_ro', true);
+      socket.on('is_part_of_ro', function(data){
+        liblayers.addLayer(L.geoJson(data, addROpartOfLibs));
       });
     } else {
-      $.getJSON("http://localhost:3000/api/geodata/features/romania/partof/" + noCounty, function(data){
-        var addROpartOfLibs = L.geoJson(data, {
-          style: style,
-          onEachFeature: onEachFeature,
-          pointToLayer: function (feature, latlng) {
-            return L.marker(latlng, {icon: partOfLibsIcon});
-          },
-        });
-        liblayers.addLayer(addROpartOfLibs);
+      // indică că dorești markere pentru universitarele dintr-un județ
+      socket.emit('mesaje', `[client -->] Adu-mi bibliotecile părți ale altor instituții din județul ${noCounty}`);
+      socket.emit('is_part_of_ro', noCounty);
+      socket.on('is_part_of_ro', function(data){
+        liblayers.addLayer(L.geoJson(data, addROpartOfLibs));
       });
     };
   };
@@ -686,3 +956,42 @@ function addROlibs(option, noCounty){
 //   // pluginul MarkerCluster vede că libraries este un grup și extrage primul nivel de copii
 //   map.addLayer(clusters);
 // });
+//
+
+// CEMETERY CODE
+
+// if(noCounty === 'RO'){
+//   $.getJSON("http://localhost:3000/api/geodata/features/romania/partof", function(data){
+//     var addROpartOfLibs = L.geoJson(data, {
+//       style: style,
+//       onEachFeature: onEachFeature,
+//       filter: function(feature, layer) {
+//           return feature.properties.qualifiers.is_national &&
+//           !feature.properties.qualifiers.is_branch &&
+//           !feature.properties.qualifiers.is_city &&
+//           !feature.properties.qualifiers.is_county &&
+//           !feature.properties.qualifiers.is_municipal &&
+//           !feature.properties.qualifiers.is_village &&
+//           !feature.properties.qualifiers.is_museum &&
+//           !feature.properties.qualifiers.is_part_of &&
+//           !feature.properties.qualifiers.is_school &&
+//           !feature.properties.qualifiers.is_university;
+//       },
+//       pointToLayer: function (feature, latlng) {
+//         return L.marker(latlng, {icon: partOfLibsIcon});
+//       },
+//     });
+//     layers.addLayer(addROpartOfLibs);
+//   });
+// } else {
+//   $.getJSON("http://localhost:3000/api/geodata/features/romania/partof/" + noCounty, function(data){
+//     var addROpartOfLibs = L.geoJson(data, {
+//       style: style,
+//       onEachFeature: onEachFeature,
+//       pointToLayer: function (feature, latlng) {
+//         return L.marker(latlng, {icon: partOfLibsIcon});
+//       },
+//     });
+//     liblayers.addLayer(addROpartOfLibs);
+//   });
+// };

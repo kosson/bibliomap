@@ -16,6 +16,7 @@ var Promise     = global.Promise || require('promise'),
     mongoose    = require('mongoose'),
     config      = require('./config/config'),
     bcrypt      = require('bcrypt-nodejs'),
+    chalk       = require('chalk'),
     tplHelpers  = require('./app/libs/tplHelpers');
     require('./app/routes/mapSocketsData')(io);
     // ambaleaza middleware-ul Express într-un server http
@@ -108,8 +109,9 @@ io.on('connect', function(socket){
 
   // stabilirea canalului mesaje
   socket.on('mesaje', function(data){
-    console.log(`[server <--] Serverul a primit: ${data}`);
-    socket.emit('mesaje', `[server -->] ${socket.id} a scris: ${data}`);
+    console.log(chalk.bgMagenta(`[server <--] Serverul a primit: ${data}`));
+    // socket.emit('mesaje', `[server -->] ${socket.id} a scris: ${data}`);
+    socket.emit('mesaje', chalk.bgMagenta(`[server -->] ${socket.id} a scris: ${data}`));
   });
 
   // CANAL CREARE UTILIZATOR
@@ -187,10 +189,10 @@ io.on('connect', function(socket){
 // CREEZI UN CHAT
 var dialog = io.of('/dialog')
                .on('connection', function(socket){
-                 socket.emit('echo', `[server -->] Serverul te salută, ${socket.id}`);
+                 socket.emit(chalk.bgMagenta('echo', `[server -->] Serverul te salută, ${socket.id}`));
                  socket.on('echo', function(data){
-                   console.log(data);
-                   socket.broadcast.emit(`[server <--] S-a conectat ${socket.id}`);
+                   console.log(chalk.bgMagenta(data));
+                   socket.broadcast.emit(chalk.bgMagenta(`[server <--] S-a conectat ${socket.id}`));
                  });
                 });
 
@@ -234,5 +236,5 @@ var dialog = io.of('/dialog')
  * PORNEȘTE SERVER
  */
 server.listen(3000, function(){
-  console.log('Server pornit pe 3000');
+  console.log(chalk.green('Server pornit pe 3000'));;
 });
