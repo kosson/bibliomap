@@ -47,296 +47,6 @@ var liblayers = new L.LayerGroup(), // grup de markeri din straturile generate p
 L.control.layers(baseMaps).addTo(map);
 // poți adăuga și overlay-urile la switching.
 
-// TODO: un mecanism care să preia selecțiile făcute în pagină și să le transforme în date afișate
-
-/**
- * TABULEAZA DATELE
- */
-
-// funcție cu rolul de a transforma conținutul unui array într-un form
-// Cazuri de array: array de valori, array de obiecte, array de array
-var objDeTest = {
-    "_id" : "56dabb268fcd207c7557e7a5",
-    "type" : "Feature",
-    "properties" : {
-        "connectors" : [
-            {
-                "connector" : ""
-            }
-        ],
-        "budget" : [
-            {
-                "year" : "2011",
-                "amount" : "12322.45"
-            }
-        ],
-        "services" : {
-            "opening_hours" : "",
-            "webpage_url" : "http://www.bjastrasibiu.ro",
-            "social" : {
-                "twitter" : [
-                    ""
-                ],
-                "instagram" : [
-                    ""
-                ],
-                "youtube" : [
-                    ""
-                ],
-                "facebook" : [
-                    ""
-                ],
-                "blogspot" : [
-                    ""
-                ],
-                "wordpress" : [
-                    ""
-                ]
-            },
-            "syndication_feeds" : [
-                {
-                    "name_feed" : "",
-                    "url_feed" : "",
-                    "_id" : "56dabb268fcd207c7557e7a6"
-                }
-            ],
-            "repository" : [
-                {
-                    "name" : "",
-                    "url" : "",
-                    "query_url" : "",
-                    "api_url" : ""
-                }
-            ],
-            "catalog" : {
-                "url" : "http://www.bjastrasibiu.ro/Liberty3/gateway/gateway.exe?application=Liberty3&amp;displayform=opac/main",
-                "query_url" : "",
-                "api_url" : ""
-            }
-        },
-        "identifiers" : {
-            "code_zone" : 7,
-            "code_county" : 32,
-            "code_siruta" : 143450,
-            "LMI" : ""
-        },
-        "address" : [
-            {
-                "loc" : "Sibiu",
-                "street" : "George Barițiu, Nr. 5-7",
-                "postal_code" : "",
-                "obs" : "",
-                "date" : "2016-03-05T10:55:34.175Z"
-            }
-        ],
-        "qualifiers" : {
-            "is_branch" : false,
-            "is_city" : false,
-            "is_county" : true,
-            "is_municipal" : false,
-            "is_museum" : false,
-            "is_national" : false,
-            "is_school" : false,
-            "is_university" : false,
-            "is_village" : false
-        },
-        "name" : [
-            {
-                "official_name" : "Biblioteca Județeană „Astra”",
-                "name_mark" : "Astra",
-                "date" : "2016-03-05T10:55:34.175Z"
-            }
-        ]
-    },
-    "geometry" : {
-        "type" : "Point",
-        "coordinates" : [
-            24.14625,
-            45.793396
-        ]
-    },
-    "__v" : 0
-};
-var arraySimpluDeTest = [1, 'altceva', true, false, [1, 20, true, ['din interior', false]]];
-
-/**
- * arrToForm o funcție care generează input-uri și checkbox-uri pentru boolean
- * @param  {array} arr  array cu mix de valori
- * @param  {string} name un string care va constitui prefixul unei valori care va sta la name-uri
- */
-function arrToForm(arr){
-
-  var targetInDOM = document.getElementById('inputDataTable'),
-      frm         = document.createElement('form');
-
-  for(var i = 0, y = arr.length; i < y; i++){
-
-    if(typeof arr[i] === 'number'){
-      var fInputTxt   = document.createElement('input');
-      fInputTxt.type  = 'text';
-      fInputTxt.id    = arr[i];                 // pune id
-      fInputTxt.setAttribute('name', arr[i]);   // pune name
-      fInputTxt.setAttribute('value', arr[i]);  // pune value
-      // fInputTxt.className = 'recDynInputTxt';
-      frm.appendChild(fInputTxt);
-      targetInDOM.appendChild(frm);
-    }
-
-    if(typeof arr[i] === 'string'){
-      var fInputTxt   = document.createElement('input');
-      fInputTxt.type  = 'text';
-      fInputTxt.id    = arr[i];                    // pune id
-      fInputTxt.setAttribute('name', arr[i]);   // pune name
-      fInputTxt.setAttribute('value', arr[i]);  // pune value
-      // fInputTxt.className = 'recDynInputTxt';
-      frm.appendChild(fInputTxt);
-      targetInDOM.appendChild(frm);
-    }
-
-    if(arr[i] === true){
-      var fInputChkBx  = document.createElement('input');
-      fInputChkBx.type = 'checkbox'
-      fInputChkBx.setAttribute('checked', 'checked');
-      fInputChkBx.setAttribute('value', 'true');
-      // fInputTxt.className = 'recDynInputTxt';
-      frm.appendChild(fInputChkBx);
-      targetInDOM.appendChild(frm);
-    }
-
-    if(arr[i] === false){
-      var fInputChkBx  = document.createElement('input');
-      fInputChkBx.type = 'checkbox';
-      fInputChkBx.setAttribute('value', 'false');
-      frm.appendChild(fInputChkBx);
-      targetInDOM.appendChild(frm);
-    }
-
-    if(arr[i] === undefined){
-      var fInputChkBx  = document.createElement('input');
-      fInputChkBx.type = 'text';
-      fInputChkBx.setAttribute('value', 'false');
-      frm.appendChild(fInputTxt);
-      targetInDOM.appendChild(frm);
-    }
-
-    if(Array.isArray(arr[i])){
-      arrToForm(arr[i]);
-    }
-
-    //TODO: introdu si cazul in care membrul este un obiect
-    if(typeof arr[i] === 'object'){
-      objToForm((arr[i]));
-    }
-  };
-};
-
-function objToForm(obj){
-
-  /**
-   * Funcția generează câmpuri de formular pentru fiecare string sau nr identificat de
-   * o proprietate dintr-un JSON. Pentru fiecare dintre acestea face un fildset în care
-   * este pus numele proprietății și un câmp input type='text' pentru valoare. Acest input
-   * are drept id chiar valoarea string în sine.
-   * Funcția este folosită ca bloc constructiv pentru transformarea GeoJSON-urilor într-o
-   * formă tabelară care pentru fiecare bloc de informație este generat un formular ce va fi
-   * ușor de folosit pentru modificarea bazei de date.
-   * @param  {string} val   valoarea string sau numar
-   * @param  {string} nProp este stringul care numește proprietatea din obiect afișată
-   */
-  function valToField(val, nProp){
-    var fInputTxt   = document.createElement('input'),
-        fLabel      = document.createElement('label'),
-        fLabelTxt   = document.createTextNode(val),
-        fFieldset   = document.createElement('fieldset'),
-        fLegend     = document.createElement('legend'),
-        fLegendTxt  = document.createTextNode(nProp);
-
-    fLabel.setAttribute('for', val);
-    fLabel.appendChild(fLabelTxt);
-
-    fInputTxt.type  = 'text';
-    fInputTxt.id    = val;                 // pune id
-    fInputTxt.setAttribute('name', val);   // pune name
-    fInputTxt.setAttribute('value', val);  // pune value
-    fInputTxt.className = 'dynInputsFrm';
-
-    // bagi in fFieldset --> fInputTxt
-    fLegend.appendChild(fLegendTxt);
-    fFieldset.appendChild(fLegend);
-    fFieldset.appendChild(fLabel);
-    fFieldset.appendChild(fInputTxt);
-
-    frm.appendChild(fFieldset);
-    targetInDOM.appendChild(frm);
-  };
-
-  function propToFieldset(property, name){
-    var fInputTxt   = document.createElement('input'),
-        fFieldset   = document.createElement('fieldset'),
-        fLegend     = document.createElement('legend'),
-        fLegendTxt  = document.createTextNode(name);
-
-    fInputTxt.type  = 'text';
-    fInputTxt.id    = property                  // pune id
-    fInputTxt.setAttribute('name', property);   // pune name
-    fInputTxt.setAttribute('value', property);  // pune value
-    fInputTxt.className = 'dynInputsFrm';
-
-    // bagi in fFieldset --> fInputTxt
-    fLegend.appendChild(fLegendTxt);
-    fFieldset.appendChild(fLegend);
-
-    frm.appendChild(fFieldset);
-    targetInDOM.appendChild(frm);
-
-    if(typeof property === 'object'){
-      objToForm(property);
-    };
-  };
-
-  /**
-   * PRELUCRAREA FIECĂREI PROPRIETĂȚI
-   */
-  for (var prop in obj) {
-
-    // console.log(prop); // _id, type, properties, geometry, __v
-    // console.log(JSON.stringify(obj[prop]));
-
-    // proprietățile aparțin obiectului?
-    if (obj.hasOwnProperty(prop)) {
-
-      var targetInDOM = document.getElementById('inputDataTable'),
-          frm         = document.createElement('form');
-
-      // ARRAY SIMPLU DE VALORI
-      if(Array.isArray(obj[prop])){
-        arrToForm(obj[prop]);
-        objToForm(obj[prop]);
-      };
-
-      // STRING
-      if(typeof obj[prop] === 'string'){
-        valToField(obj[prop], prop);
-      };
-
-      // NUMBER
-      if(typeof obj[prop] === 'number'){
-        valToField(obj[prop], prop);
-      };
-
-      // OBJECT
-      if(typeof obj[prop] === 'object'){
-
-        propToFieldset(obj[prop], prop);
-
-      };
-    };
-  };
-};
-
-objToForm(objDeTest);
-
-
 /**
  * LEGENDA FUNCȚIILOR DE MANIPULARE A LAYERELOR
  */
@@ -345,19 +55,19 @@ addROcounties();                       // aduce coroplethurile județelor
 
 addROlibs('is_county');               // aduce doar bibliotecile județene
 
-addROlibs('is_municipal', 5);         // aduce bibliotecile municiplale pentru un județ
-// addROlibs('is_municipal', 'RO');      // aduce biliotecile municipale pentru întreaga țară
+// addROlibs('is_municipal', 5);         // aduce bibliotecile municiplale pentru un județ
+addROlibs('is_municipal', 'RO');      // aduce biliotecile municipale pentru întreaga țară
 
 // addROlibs('is_city', 5);              // aduce bibliotecile orășenești dintr-un județ
-// addROlibs('is_city', 'RO');        // aduce bibliotecile orășenești din toată țara
+addROlibs('is_city', 'RO');        // aduce bibliotecile orășenești din toată țara
 
 // addROlibs('is_university', 5);        // aduce bibliotecile universitare dintr-un județ
-// addROlibs('is_university', 'RO');  // aduce bibliotecile universitare din toată țara
+addROlibs('is_university', 'RO');  // aduce bibliotecile universitare din toată țara
 
-addROlibs('is_village', 25);           // aduce bibliotecile sătești și comunale dintr-un județ
-// addROlibs('is_village', 'RO');     // aduce bibliotecile sătești și comunale din țară
+// addROlibs('is_village', 25);           // aduce bibliotecile sătești și comunale dintr-un județ
+addROlibs('is_village', 'RO');     // aduce bibliotecile sătești și comunale din țară
 
-addROlibs('is_branch', 5);            // aduce bibliotecile sătești și comunale dintr-un județ
+// addROlibs('is_branch', 5);            // aduce bibliotecile sătești și comunale dintr-un județ
 // addROlibs('is_branch', 'RO');         // aduce bibliotecile sătești și comunale dintr-un județ
 
 // addROlibs('is_museum', 40);
@@ -372,6 +82,17 @@ addROlibs('is_branch', 5);            // aduce bibliotecile sătești și comuna
 // addROlibs('is_part_of', 5);
 // addROlibs('is_part_of', 'RO');
 
+
+// ADUNĂ TOATE DATELE DIN LAYERE
+// socket.on('spice', function(data){
+//   var spice = [];
+//
+//   for(let elem in data) {
+//     spice.push(data[elem]);
+//   };
+//
+//   tableGen(spice, 'tableGen', 'tabelDeTest');
+// });
 
 // COROPHETH-urile județelor
 function addROcounties (option){
@@ -443,6 +164,28 @@ function addROcounties (option){
 // MARKERI BIBLIOTECI
 function addROlibs(option, noCounty){
 
+
+  ACTUALIZEAZA PUNCTUL COMUN DE DATE
+  socket.on('spice', function(data){
+
+    // PUNCT COMUN DE DATE - BIBLIOTECILE ROMÂNEȘTI
+    var loadedData = [];
+
+    loadedData['is_county_ro'] = data;
+  });
+  socket.on('spice', function(data){
+    console.log(data);
+  });
+
+  // console.log(loadedData['is_county_ro']);
+
+
+  // TODO: un punct comun de date după următorul scenariu:
+  // 1. un layer face un apel pe socketuri,
+  // 2. datele sunt scoase din bază și sunt emise
+  // 3. colectează datele într-un punct COMUN
+  // 4. abia din punctul comun, layerul să ia date
+
   // FUNCȚIE PARTAJATĂ CARE ADUCE INFORMAȚIILE PENTRU FIECARE MARKER
   function onEachFeature(feature, layer) {
     // console.log(feature.properties.name[0].official_name);
@@ -479,29 +222,13 @@ function addROlibs(option, noCounty){
     layer.bindPopup(popupText);
   };
 
-  // ALTERNATIVA CLASICA la AwesomeMarkers
-  // var countyLibIcon = L.icon({
-  //   iconUrl: 'images/baseball-marker.png',
-  //   // shadowUrl: 'leaf-shadow.png',
-  //   //
-  //   // iconSize:     [38, 95], // size of the icon
-  //   // shadowSize:   [50, 64], // size of the shadow
-  //    function onEachFeature(feature, layer) {
- // iconAnchor:   [22, 9api/geodata/features/nuts3ro4], // point of the icon which will correspond to marker's location
-  //   // shadowAnchor: [4, 62],  // the same for the shadow
-  //   // popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
-  // });
-
   // BIBLIOTECI JUDEȚENE FĂRĂ FILIALE
   if(option === 'is_county'){
     socket.emit('mesaje', `[client -->] Adu-mi bibliotecile județene fără filiale`);
-    socket.emit('is_county_ro', true);
+    socket.emit('is_county_ro', true); // TRIMITE SOLICITAREA PE SOCKET-URI
+
+    // LA PREZENȚA DATELOR PE SOCKET, SE VA CONSTITUI LAYERUL
     socket.on('is_county_ro', function(data){
-
-      // TODO: cheamă o funcție care transformă datele într-un tabel
-
-      // document.body.appendChild(buildHTMLDataTable(data));
-      // jsonMultiDimParser(data);
 
       var style = {
         // fillColor: 'orange'
@@ -524,6 +251,7 @@ function addROlibs(option, noCounty){
   				return L.marker(latlng, {icon: countyLibIcon});
   			}
       });
+
       // adaugă layerul bibliotecilor județene la grupul layerelor
       liblayers.addLayer(addROcountyLibsCentral);
     });
@@ -557,7 +285,15 @@ function addROlibs(option, noCounty){
       socket.emit('mesaje', `[client -->] Adu-mi bibliotecile municipale din toată țara`);
       socket.emit('is_municipal_ro', true);
       socket.on('is_municipal_ro', function(data){
+
+        // O metodă de a genera un punct unic cu toate datele
+        // for(let obj in data) {
+        //   loadedData.push(data[obj]);
+        // };
+
         liblayers.addLayer(L.geoJson(data, addROmunicipalLibsSet));
+        // GENEREAZĂ TABEL pentru datele aduse
+        // tableGen(data, 'tableGen', 'tabelDeTest');
       });
     } else {
       // indică că dorești markere pentru municipiile dintr-un județ
@@ -565,6 +301,9 @@ function addROlibs(option, noCounty){
       socket.emit('is_municipal_ro', noCounty);
       socket.on('is_municipal_ro', function(data){
         liblayers.addLayer(L.geoJson(data, addROmunicipalLibsSet));
+        // GENEREAZĂ TABEL pentru datele aduse
+        // tableGen(data, 'tableGen', 'tabelDeTest');
+        // tableGen(loadedData, 'tableGen', 'tabelDeTest');
       });
     };
   };

@@ -36,6 +36,7 @@ module.exports = function (io) {
         Georef.find({'properties.qualifiers.is_county': true}, function(err, features){
           if(err) throw err;
           socket.emit('is_county_ro', features);
+          socket.emit('spice', features);
         });
       } else {
         socket.emit('mesaje', `Ceva nu funcționează cu județele`);
@@ -48,6 +49,7 @@ module.exports = function (io) {
         Georef.find({'properties.qualifiers.is_municipal': true}, function(err, features){
           if(err) throw err;
           socket.emit('is_municipal_ro', features);
+          socket.emit('spice', features);
         });
       } else if (data){ // typeof data === 'number'
         Georef.find({
@@ -56,6 +58,7 @@ module.exports = function (io) {
         }, function(err, features){
           if(err) throw err;
           socket.emit('is_municipal_ro', features);
+          socket.emit('spice', features);
         });
       } else {
         socket.emit('mesaje', `Ceva nu funcționează cu municipiile`);
